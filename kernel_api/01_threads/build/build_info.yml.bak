@@ -1,0 +1,4 @@
+west:
+  command: /home/priya/zephyrproject/.venv/bin/west build -b nucleo_f401re
+  topdir: /home/priya/zephyrproject
+  version: 1.5.0
