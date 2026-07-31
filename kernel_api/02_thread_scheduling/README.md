@@ -10,12 +10,4 @@ This module demonstrates **Thread Scheduling** in **Zephyr RTOS** using the Kern
 | **cooperative_thread** | Cooperative | The running thread voluntarily releases the CPU using `k_yield()` or `k_msleep()`. |
 
 ## Scheduling Comparison
-
-| Feature | Preemptive | Cooperative |
-|---------|------------|-------------|
-| Priority | `0` and above | Negative (`-1`, `-2`, ...) |
-| CPU Switch | Automatic | Voluntary |
-| Controlled By | Scheduler | Running Thread |
-| Best For | Real-time tasks | Cooperative execution |
-
-Each project contains a dedicated `README.md` with implementation details, execution flow, and sample output.
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/653d1bd5-abe6-45ce-9fe2-6b449c80740a" />
