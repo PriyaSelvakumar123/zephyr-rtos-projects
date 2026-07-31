@@ -1,0 +1,14 @@
+/ {
+    aliases {
+        led1 = &external_led;
+    };
+
+    leds {
+        compatible = "gpio-leds";
+
+        external_led: led1 {
+            gpios = <&gpioa 9 GPIO_ACTIVE_HIGH>;
+            label = "External LED";
+        };
+    };
+};
