@@ -1,0 +1,61 @@
+cmake:
+  application:
+    configuration-dir: '/home/priya/zephyrproject/zephyr-rtos-projects/kernel_api/02_thread_scheduling/cooperative_thread'
+    source-dir: '/home/priya/zephyrproject/zephyr-rtos-projects/kernel_api/02_thread_scheduling/cooperative_thread'
+  board:
+    name: 'nucleo_f411re'
+    path:
+     - '/home/priya/zephyrproject/zephyr/boards/st/nucleo_f411re'
+    qualifiers: 'stm32f411xe'
+    revision: ''
+  devicetree:
+    bindings-dirs:
+     - '/home/priya/zephyrproject/zephyr/dts/bindings'
+    files:
+     - '/home/priya/zephyrproject/zephyr/boards/st/nucleo_f411re/nucleo_f411re.dts'
+     - '/home/priya/zephyrproject/zephyr-rtos-projects/kernel_api/02_thread_scheduling/cooperative_thread/app.overlay'
+    include-dirs:
+     - '/home/priya/zephyrproject/modules/hal/ambiq/dts'
+     - '/home/priya/zephyrproject/modules/hal/atmel/include'
+     - '/home/priya/zephyrproject/modules/hal/bouffalolab/include'
+     - '/home/priya/zephyrproject/modules/hal/bouffalolab/include/zephyr'
+     - '/home/priya/zephyrproject/modules/hal/gigadevice/include'
+     - '/home/priya/zephyrproject/modules/hal/microchip/include'
+     - '/home/priya/zephyrproject/modules/hal/microchip/dts'
+     - '/home/priya/zephyrproject/modules/hal/nuvoton/dts'
+     - '/home/priya/zephyrproject/modules/hal/nxp/dts'
+     - '/home/priya/zephyrproject/modules/hal/stm32/dts'
+     - '/home/priya/zephyrproject/modules/hal/ti/dts'
+     - '/home/priya/zephyrproject/zephyr/include'
+     - '/home/priya/zephyrproject/zephyr/include/zephyr'
+     - '/home/priya/zephyrproject/zephyr/dts/common'
+     - '/home/priya/zephyrproject/zephyr/dts/vendor'
+     - '/home/priya/zephyrproject/zephyr/dts/rx'
+     - '/home/priya/zephyrproject/zephyr/dts/x86'
+     - '/home/priya/zephyrproject/zephyr/dts/xtensa'
+     - '/home/priya/zephyrproject/zephyr/dts/sparc'
+     - '/home/priya/zephyrproject/zephyr/dts/riscv'
+     - '/home/priya/zephyrproject/zephyr/dts/posix'
+     - '/home/priya/zephyrproject/zephyr/dts/arm64'
+     - '/home/priya/zephyrproject/zephyr/dts/arm'
+     - '/home/priya/zephyrproject/zephyr/dts/arc'
+     - '/home/priya/zephyrproject/zephyr/dts'
+    user-files:
+     - '/home/priya/zephyrproject/zephyr-rtos-projects/kernel_api/02_thread_scheduling/cooperative_thread/app.overlay'
+  kconfig:
+    files:
+     - '/home/priya/zephyrproject/zephyr/boards/st/nucleo_f411re/nucleo_f411re_defconfig'
+     - '/home/priya/zephyrproject/zephyr-rtos-projects/kernel_api/02_thread_scheduling/cooperative_thread/prj.conf'
+    user-files:
+     - '/home/priya/zephyrproject/zephyr-rtos-projects/kernel_api/02_thread_scheduling/cooperative_thread/prj.conf'
+  toolchain:
+    name: 'zephyr'
+    path: '/home/priya/zephyr-sdk-0.17.2'
+  zephyr:
+    version: '4.2.0'
+    zephyr-base: '/home/priya/zephyrproject/zephyr'
+version: '0.1.0'
+west:
+  command: '/home/priya/zephyrproject/.venv/bin/west build -p always -b nucleo_f411re'
+  topdir: '/home/priya/zephyrproject'
+  version: '1.5.0'
