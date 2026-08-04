@@ -6,277 +6,179 @@
 ![Board](https://img.shields.io/badge/Board-STM32_Nucleo_F411RE-orange.svg)
 ![Microcontroller](https://img.shields.io/badge/MCU-ARM_Cortex--M4-red.svg)
 
-A structured collection of **Zephyr RTOS** examples demonstrating kernel services, device drivers, peripherals, and embedded firmware development on the **STM32 Nucleo-F411RE** development board. 
-
-This repository is designed as a learning resource, progressing from basic hardware abstraction (GPIO, Sensors) to raw Kernel Scheduler behavior (Threads, Cooperative/Preemptive scheduling, IPC). Each subdirectory isolates a single concept with a modular, scalable, and production-ready implementation.
+A clean, structured collection of **Zephyr RTOS** examples for the **STM32 Nucleo-F411RE** board. This repository is designed as a progressive learning guide—scaling from basic hardware access (GPIO, Sensors) to RTOS kernel internals (Threads, Cooperative/Preemptive scheduling).
 
 ---
 
-## Table of Contents
-
-- [Repository Directory Structure](#repository-directory-structure)
-- [Module Deep Dive](#module-deep-dive)
-  - [1. Getting Started](#1-getting-started)
-  - [2. Kernel API - Threads](#2-kernel-api---threads)
-  - [3. Kernel API - Thread Scheduling](#3-kernel-api---thread-scheduling)
-- [Zephyr Scheduling Mechanics](#zephyr-scheduling-mechanics)
-  - [Cooperative Scheduling Flow](#cooperative-scheduling-flow)
-  - [Preemptive Scheduling Flow](#preemptive-scheduling-flow)
-- [Hardware & Pin Mapping](#hardware--pin-mapping)
-- [Development Environment Setup](#development-environment-setup)
-- [Build and Flash Guide](#build-and-flash-guide)
-- [Learning Roadmap & Status](#learning-roadmap--status)
-- [References](#references)
-- [Author & License](#author--license)
-
----
-
-## Repository Directory Structure
+## 📂 Project Structure
 
 ```text
 zephyr-rtos-projects/
-│
 ├── getting_started/
-│   ├── README.md                      # Module setup & Devicetree overview
-│   ├── blinky/                        # Introductory LED control example
-│   └── accel_polling/                 # Read 3-axis accelerometer data (Sensor API)
+│   ├── blinky/               # Basic GPIO LED control
+│   └── accel_polling/        # Multi-sensor polling (Sensor API)
 │
 ├── kernel_api/
-│   ├── 01_threads/                    # Static thread creation & priority assignment
-│   │   ├── app.overlay                # Devicetree overlay for dual LED aliases
-│   │   ├── prj.conf                   # Thread and GPIO Kconfig options
-│   │   └── src/main.c                 # Multi-threaded toggle logic
-│   │
-│   └── 02_thread_scheduling/          # In-depth scheduling demonstrations
-│       ├── README.md                  # Scheduling concepts comparison
-│       ├── cooperative_thread/        # Negative priorities & yielding mechanics
-│       └── preemptive_demo/           # Positive priorities & preemption mechanics
-│
-└── README.md                          # Main project guide (this file)
+│   ├── 01_threads/           # Static thread creation & DeviceTree overlays
+│   └── 02_thread_scheduling/ # Scheduling behavioral demos
+│       ├── cooperative/      # Yielding & negative priorities (-1, -2)
+│       └── preemptive/       # Busy-waiting & positive priorities (2, 5)
 ```
 
-Each subdirectory behaves as a standalone Zephyr application containing its own build configurations (`CMakeLists.txt`), configuration overlays (`prj.conf`), source codes (`src/main.c`), and optional DeviceTree overlays (`app.overlay`).
+> [!NOTE]
+> Every folder is a fully self-contained Zephyr application with its own `CMakeLists.txt`, `prj.conf`, and `src/main.c`.
 
 ---
 
-## Module Deep Dive
+## 🛠️ Modules Overview
 
 ### 1. Getting Started
+*   **Blinky**: Toggles the onboard green LED (`led0`). Demonstrates basics of GPIO configuration and DeviceTree bindings.
+*   **Accelerometer Polling**: Reads X, Y, and Z acceleration. Uses the Zephyr **Sensor API** and maps up to 10 sensors via DeviceTree aliases (`accel0` to `accel9`).
 
-Designed to familiarise developers with the Zephyr project layout and hardware abstraction layer (HAL) configuration using the DeviceTree.
+### 2. Threads (`01_threads`)
+*   **Concepts**: Creating threads statically at compile-time via `K_THREAD_DEFINE`.
+*   **Hardware Setup**: Toggles the onboard LED (`led0` / `PA5`) and an external LED (`led1` / `PA9`) configured using `app.overlay`.
+*   **Priority Rules**: Thread 0 (Priority `3`) executes before Thread 1 (Priority `5`).
+    > [!IMPORTANT]
+    > In Zephyr, **lower priority numbers = higher execution priority**.
 
-#### A. Blinky
-- **Description**: The classic "Hello World" of embedded systems.
-- **Hardware Integration**: Directly binds to the onboard user LED via the standard DeviceTree alias (`led0`).
-- **Core APIs**: `gpio_pin_configure_dt()`, `gpio_pin_toggle_dt()`, `k_msleep()`.
+### 3. Scheduling (`02_thread_scheduling`)
 
-#### B. Accelerometer Polling
-- **Description**: Uses Zephyr's **Sensor API** to poll standard 3-axis accelerometer values.
-- **Hardware Integration**: Dynamically matches up to 10 accelerometer nodes bound via DeviceTree aliases (`accel0` through `accel9`). Supports polling and streaming mode configurations.
-- **Core APIs**: `sensor_sample_fetch()`, `sensor_channel_get()`, `sensor_value_to_double()`.
-
----
-
-### 2. Kernel API - Threads
-
-Demonstrates how to declare and control threads statically in Zephyr RTOS at compile-time and configure multi-threaded synchronization.
-
-#### Threads Demo (`01_threads`)
-- **Description**: Spawns two independent execution threads (`thread0` and `thread1`) that drive the onboard LED (`led0`) and an external LED connected to pin **PA9** (`led1`).
-- **DeviceTree Overlays**: Utilizes `app.overlay` to link `PA9` to `led1` under the `gpio-leds` driver context.
-- **Priority Specs**:
-  - `thread0`: Priority `3` (higher priority), toggling `led0` every 500 ms.
-  - `thread1`: Priority `5` (lower priority), toggling `led1` every 2000 ms.
-
-```c
-/* Static thread registration at compile-time */
-K_THREAD_DEFINE(thread0_id, STACK_SIZE, thread0, NULL, NULL, NULL, 3, 0, 0);
-K_THREAD_DEFINE(thread1_id, STACK_SIZE, thread1, NULL, NULL, NULL, 5, 0, 0);
-```
+| Scheduling Type | Priority Range | Context Switch Trigger | Behavior Description |
+| :--- | :--- | :--- | :--- |
+| **Cooperative** | Negative (`-1` to `-15`) | `k_yield()`, `k_sleep()`, or blocking I/O | Keeps hold of the CPU until the running thread voluntarily yields. |
+| **Preemptive** | Positive (`0` to `15`) | Time-slice end, thread sleep, or priority change | Scheduler instantly preempts the running thread when a higher-priority task is ready. |
 
 ---
 
-### 3. Kernel API - Thread Scheduling
+## 📊 Scheduling Flowcharts
 
-Presents how the Zephyr RTOS Scheduler acts depending on whether the active thread is cooperative or preemptive.
+### Cooperative Scheduling (`priority: -1` vs `-2`)
+A cooperative thread retains CPU control even if a higher-priority cooperative thread becomes ready.
 
-#### A. Cooperative Scheduling (`cooperative_thread`)
-- **Description**: Demonstrates cooperative threads using negative priority values (`-1` and `-2`).
-- **Concept**: A running cooperative thread cannot be forced off the CPU by another thread, regardless of its priority. It must voluntarily yield control by calling blocking calls (`k_sleep()`, `k_msleep()`) or by calling `k_yield()`.
-- **Implementation**: The low-priority cooperative thread (`-1`) runs an intense loop of 10 increments without yielding. The high-priority cooperative thread (`-2`) is READY but blocked from running until the low-priority thread explicitly executes `k_yield()`.
-
-#### B. Preemptive Scheduling (`preemptive_demo`)
-- **Description**: Demonstrates preemptive threads using positive priority values (`2` and `5`).
-- **Concept**: A running preemptive thread will instantly be suspended by the scheduler the moment a higher-priority preemptive thread becomes execution-ready.
-- **Implementation**: A low-priority thread (`5`) CPU busy-waits via `k_busy_wait()`. When the high-priority thread (`2`) finishes its 1-second sleep time, the Scheduler immediately preempts the low-priority thread to execute the high-priority tasks.
-
----
-
-## Zephyr Scheduling Mechanics
-
-The following diagrams illustrate the scheduling behavior modeled in the `02_thread_scheduling` directory.
-
-### Cooperative Scheduling Flow
 ```mermaid
 sequenceDiagram
-    participant LT as Low-Priority Thread (Cooperative, -1)
-    participant HT as High-Priority Thread (Cooperative, -2)
-    LT->>LT: Start Execution / Print Counts 1 to 10
-    Note over LT: Keeps CPU even though High-Priority is READY!
+    participant LT as Low-Priority (Cooperative, -1)
+    participant HT as High-Priority (Cooperative, -2)
+    LT->>LT: Runs loops 1 to 10
+    Note over LT: HT is READY, but LT keeps control
     LT->>LT: Call k_yield()
-    Note over LT: Voluntarily yields CPU control
+    Note over LT: Voluntarily yields control
     LT-->>HT: Context Switch
     activate HT
-    HT->>HT: Print "High Priority Thread Running"
-    HT->>HT: k_sleep(1s)
+    HT->>HT: Runs task, then sleeps (k_sleep)
     deactivate HT
     Note over HT: Blocked (Sleeping)
     HT-->>LT: Context Switch
     activate LT
-    LT->>LT: Resume execution after yield
+    LT->>LT: Resumes execution
     deactivate LT
 ```
 
-### Preemptive Scheduling Flow
+### Preemptive Scheduling (`priority: 5` vs `2`)
+A preemptive thread is immediately interrupted matching the CPU scheduler's priority rules.
+
 ```mermaid
 sequenceDiagram
-    participant LT as Low-Priority Thread (Preemptive, 5)
-    participant HT as High-Priority Thread (Preemptive, 2)
+    participant LT as Low-Priority (Preemptive, 5)
+    participant HT as High-Priority (Preemptive, 2)
     activate LT
-    LT->>LT: Busy-Wait (k_busy_wait 50ms)
-    Note over HT: 1-second sleep timer expires: HT changes to READY
-    Note over LT,HT: HT is READY and priority (2) > priority (5)
-    LT-->>HT: Immediate Preemption (Context Switch)
+    LT->>LT: Busy-Waits (k_busy_wait 50ms)
+    Note over HT: Sleep Timer Expires -> HT changes to READY
+    Note over LT,HT: Priority (2) > Priority (5): Immediate Preemption
+    LT-->>HT: Context Switch
     deactivate LT
     activate HT
-    HT->>HT: Run Loop / Print "HIGH" 1 to 5
-    HT->>HT: k_msleep(1000)
+    HT->>HT: Runs and prints output
+    HT->>HT: Call k_msleep(1000)
     deactivate HT
     Note over HT: Blocked (Sleeping)
     HT-->>LT: Context Switch
     activate LT
-    LT->>LT: Resume Busy-Wait loop / Print "LOW"
+    LT->>LT: Resumes Busy-Wait loop
     deactivate LT
 ```
 
 ---
 
-## Hardware & Pin Mapping
+## 🔌 Hardware & Pin Configuration
 
-Configurations are tested on the **STM32 Nucleo-F411RE**.
+These configurations apply directly to the **STM32 Nucleo-F411RE**:
 
-| Component / Function | GPIO pin (Nucleo) | DeviceTree Node / Alias |
-|----------------------|-------------------|--------------------------|
-| **Green user LED**   | PA5               | `led0` (Onboard alias)   |
-| **External Green LED**| PA9              | `led1` (Defined in overlay) |
-| **I2C2 Clock (SCL)** | PB10              | `i2c2` (Accel polling)   |
-| **I2C2 Data (SDA)**  | PB3               | `i2c2` (Accel polling)   |
-| **Serial Tx (UART2)**| PA2               | Console logs (ST-LINK Virtual COM)|
-| **Serial Rx (UART2)**| PA3               | Console logs (ST-LINK Virtual COM)|
+*   **Onboard Green LED**: Pin `PA5` (mapped to `led0`)
+*   **External Debug LED**: Pin `PA9` (mapped to `led1` via `app.overlay`)
+*   **I2C2 Clock (SCL)**: Pin `PB10`
+*   **I2C2 Data (SDA)**: Pin `PB3`
+*   **Console Logging**: ST-LINK Virtual COM port (UART2, `PA2`/`PA3`) at **115200 Baud**
 
 ---
 
-## Development Environment Setup
+## ⚡ Setup & Build Guide
 
-To compile and load these projects, you need to set up the Zephyr environment on your host machine (WSL2/Linux or Windows Setup):
-
-1. **Initialize West Workspace**:
-   ```bash
-   # Create a fresh Zephyr workspace directory
-   west init ~/zephyrproject
-   cd ~/zephyrproject
-   west update
-   ```
-
-2. **Install Python & System Dependencies**:
-   ```bash
-   # Export Zephyr dependencies
-   west zephyr-export
-   pip install -r ~/zephyrproject/zephyr/scripts/requirements.txt
-   ```
-
-3. **Install Zephyr SDK**:
-   Download and install the appropriate Zephyr SDK translation toolchain for ARM:
-   ```bash
-   # E.g. on Ubuntu:
-   cd ~
-   wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.16.8/zephyr-sdk-0.16.8_linux-x86_64.tar.xz
-   tar xf zephyr-sdk-0.16.8_linux-x86_64.tar.xz
-   cd zephyr-sdk-0.16.8
-   ./setup.sh
-   ```
-
----
-
-## Build and Flash Guide
-
-Substitute the path with the project you want to compile. The `-p always` flag forces a clean build directory refresh.
-
-### 1. Compile Code
+### 1. Prerequisite Command Commands
+Ensure your terminal environment is configured:
 ```bash
-# Navigate to the repository root directory
-cd zephyr-rtos-projects
+# Initialize & sync the Zephyr Workspace
+west init ~/zephyrproject
+cd ~/zephyrproject && west update
+west zephyr-export
 
-# Example: Build 01_threads on Nucleo F411RE
+# Register python dependencies
+pip install -r ~/zephyrproject/zephyr/scripts/requirements.txt
+```
+
+### 2. Build the Applications
+Navigate to the root directory of this repository, then specify the target project folder:
+
+```bash
+# General Syntax: west build -p always -b nucleo_f411re <project_path>
+
+# Example: Build the Threads demo
 west build -p always -b nucleo_f411re kernel_api/01_threads
 ```
 
-### 2. Upload/Flash to Microcontroller
-Ensure the Nucleo-F411RE board is connected via USB:
+### 3. Flash to Board
+Connect your Nucleo-F411RE board to your PC via USB and upload:
 ```bash
 west flash
 ```
 
-### 3. Open Serial Console
-To read `printk()` and log statements, open an active terminal utility at **115200 baud**:
+### 4. Connect to Console
+View debug logs (`printk`) in a serial monitor configured for **115200 baud**:
 
-- **Using Minicom**:
-  ```bash
-  minicom -D /dev/ttyACM0 -b 115200
-  ```
-- **Using Picocom**:
-  ```bash
-  picocom -b 115200 /dev/ttyACM0
-  ```
-- **Using PySerial Toolkit**:
-  ```bash
-  python -m serial.tools.miniterm /dev/ttyACM0 115200
-  ```
+```bash
+# Using Minicom (Linux)
+minicom -D /dev/ttyACM0 -b 115200
+
+# Using Picocom (Linux)
+picocom -b 115200 /dev/ttyACM0
+```
 
 ---
 
-## Learning Roadmap & Status
+## 📈 Roadmap & Completion Progress
 
-| Module | Submodule / API Topic | Status | Target Hardware |
-| :--- | :--- | :---: | :--- |
-| **Getting Started** | GPIO Led Toggling (Blinky) | ✅ | STM32 Nucleo-F411RE |
-| | Sensor Pollings (I2C) | ✅ | STM32 + 3-Axis Accel |
-| **Kernel API** | Compile-Time Threads (`K_THREAD_DEFINE`) | ✅ | STM32 + Dual LEDs |
-| | Cooperative Scheduling (`k_yield`) | ✅ | Virtual Console |
-| | Preemptive Scheduling (`k_busy_wait`) | ✅ | Virtual Console |
-| | Semaphores & Mutex API | 🚧 | Under Development |
-| | Message Queues & Timers | ⏳ | Planned |
-| **Peripherals** | PWM Generator, ADC converters | ⏳ | Planned |
-| **Device Drivers** | Custom Peripheral Drivers (UART/SPI/I2C)| ⏳ | Planned |
+- [x] **Getting Started**: GPIO Blinky & Sensor API Accelerometer Polling
+- [x] **Kernel API (Threads)**: Thread creation via `K_THREAD_DEFINE`
+- [x] **Kernel API (Scheduling)**: Cooperative vs. Preemptive behavior
+- [ ] **Kernel API (Synchronization)**: Semaphores, Mutexes, and Data Queues *(In Progress)*
+- [ ] **Kernel API (Timers)**: Hardware Timers & System Workqueues *(Planned)*
+- [ ] **Peripherals**: PWM Output & Analog-to-Digital Conversion (ADC) *(Planned)*
+- [ ] **Interfaces**: Detailed drivers (SPI, UART, custom I2C overlay configs) *(Planned)*
 
 ---
 
-## References
-
-- [Zephyr Project Official Documentation](https://docs.zephyrproject.org/latest/introduction/index.html)
-- [Zephyr API Reference Index](https://docs.zephyrproject.org/latest/doxygen/html/index.html)
-- [STM32 Nucleo-F411RE Board Guide](https://docs.zephyrproject.org/latest/boards/arm/nucleo_f411re/doc/index.html)
-- [Zephyr Kernel Services Guide](https://docs.zephyrproject.org/latest/kernel/services/index.html)
+## 📜 References
+*   [Zephyr Project Documentation](https://docs.zephyrproject.org/latest/introduction/index.html)
+*   [STM32 Nucleo-F411RE Hardware Details](https://docs.zephyrproject.org/latest/boards/arm/nucleo_f411re/doc/index.html)
+*   [Zephyr Scheduling Internals Guide](https://docs.zephyrproject.org/latest/kernel/services/scheduling/index.html)
 
 ---
 
-## Author & License
+## 👥 Author & License
 
-### Author
-**Priya Dharshini S**
-- *Department of Electronics and Communication Engineering*
-- Dedicated to: **Embedded Systems | Firmware Development | Zephyr RTOS | STM32 Microcontrollers | C Programming**
-- GitHub: [PriyaSelvakumar123](https://github.com/PriyaSelvakumar123)
-
-### License
-This project is licensed under the **MIT License**. Check out the [LICENSE](LICENSE) file for more information. Dynamic redistribution and code reuse for academic or development settings is highly encouraged!
+*   **Author**: **Priya Dharshini S** (ECE Department)
+*   **Focus**: Embedded Systems | Firmware Engineering | Zephyr RTOS | STM32 | C
+*   **Github**: [@PriyaSelvakumar123](https://github.com/PriyaSelvakumar123)
+*   **License**: Licensed under the [MIT License](LICENSE).
