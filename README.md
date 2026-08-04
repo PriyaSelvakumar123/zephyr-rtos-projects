@@ -1,216 +1,177 @@
 # Zephyr RTOS Projects
 
-A curated collection of hands-on Zephyr RTOS examples developed while learning embedded systems and real-time operating system concepts. This repository documents my journey from Zephyr fundamentals to kernel APIs, peripheral interfaces, and driver development using the **STM32 Nucleo-F411RE** development board.
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
+![Zephyr](https://img.shields.io/badge/Zephyr-RTOS-6DB33F)
+![Language](https://img.shields.io/badge/Language-C-blue)
+![Board](https://img.shields.io/badge/Board-STM32_Nucleo_F411RE-orange)
+
+A curated collection of embedded firmware examples demonstrating the core capabilities of the **Zephyr Real-Time Operating System** on the **STM32 Nucleo-F411RE** development board.
+
+The repository is organized by subsystem and API to provide focused, self-contained examples that emphasize clean implementation, maintainability, and practical use of Zephyr kernel services.
 
 ---
 
 ## Objectives
 
-* Learn Zephyr RTOS architecture and development workflow.
-* Explore Zephyr Kernel APIs through practical examples.
-* Understand DeviceTree and Kconfig configuration.
-* Develop peripheral and sensor drivers.
-* Build complete embedded applications using Zephyr.
-* Progress towards contributing to the Zephyr open-source ecosystem.
+This repository is maintained to:
+
+* Explore Zephyr RTOS architecture through practical implementations.
+* Develop a strong understanding of Zephyr Kernel APIs and execution model.
+* Demonstrate embedded firmware development using modern RTOS design practices.
+* Build reusable reference implementations for common embedded software components.
 
 ---
 
-## Hardware
-
-* STM32 Nucleo-F411RE
-
----
-
-## Software Environment
-
-* Zephyr RTOS
-* West
-* CMake
-* Ninja
-* GCC ARM Toolchain
-* Visual Studio Code
-
----
-
-# Repository Structure
+## Repository Organization
 
 ```text
-zephyr-rtos-projects
+zephyr-rtos-projects/
 │
-├── getting_started
-│   ├── hello_world
-│   ├── blinky
-│   └── gpio_basic
+├── getting_started/
+│   ├── hello_world/
+│   ├── gpio_led/
+│   └── devicetree_basics/
 │
-├── kernel_api
-│   ├── threads
-│   ├── thread_scheduling
-│   │   ├── cooperative
-│   │   └── preemptive
-│   ├── gpio_interrupt
-│   ├── semaphore
-│   ├── mutex
-│   ├── timer
-│   ├── workqueue
-│   └── message_queue
+├── kernel_api/
+│   ├── 01_threads/
+│   ├── 02_thread_scheduling/
+│   ├── 03_semaphores/
+│   ├── 04_mutex/
+│   ├── 05_message_queue/
+│   ├── 06_fifo_lifo/
+│   ├── 07_timers/
+│   └── 08_workqueue/
 │
-├── drivers
-│   ├── gpio
-│   ├── uart
-│   ├── i2c
-│   ├── spi
-│   ├── adc
-│   ├── pwm
-│   └── sensor
-│
-├── projects
-│
-└── docs
+├── interrupts/
+├── device_drivers/
+├── peripherals/
+├── sensors/
+└── README.md
 ```
 
----
-
-# Learning Progress
-
-| Topic                  | Status |
-| ---------------------- | :----: |
-| Zephyr Setup           |    ✅   |
-| Hello World            |    ✅   |
-| GPIO                   |    ✅   |
-| Threads                |    ✅   |
-| Cooperative Scheduling |    ✅   |
-| Preemptive Scheduling  |    ✅   |
-| GPIO Interrupts        |   🚧   |
-| Semaphore              |   🚧   |
-| Mutex                  |   🚧   |
-| Timer                  |   🚧   |
-| Work Queue             |   🚧   |
-| UART                   |   🚧   |
-| I2C                    |   🚧   |
-| SPI                    |   🚧   |
-| ADC                    |   🚧   |
-| PWM                    |   🚧   |
-| Sensor Driver          |   🚧   |
-| Embedded Project       |   🚧   |
+Each example is developed as an independent Zephyr application with its own source, configuration, board overlay, and documentation.
 
 ---
 
-# Topics Covered
+## Technical Scope
 
-### Getting Started
+### Kernel
 
-* Zephyr installation
-* Build system
-* Flashing applications
-* GPIO basics
+* Thread Management
+* Scheduling
+* Cooperative Execution
+* Preemptive Execution
+* Thread Priorities
+* Delays and Sleep APIs
 
-### Kernel APIs
+### Synchronization
 
-* Thread creation
-* Cooperative scheduling
-* Preemptive scheduling
-* Synchronization primitives
-* Timers
+* Semaphores
+* Mutexes
+* Message Queues
+* FIFOs
+* LIFOs
 * Work Queues
-* GPIO Interrupts
 
-### Peripheral Interfaces
+### Hardware Abstraction
 
 * GPIO
-* UART
-* I2C
-* SPI
-* ADC
-* PWM
+* DeviceTree
+* Interrupt Handling
+* Timers
 
 ### Driver Development
 
-* DeviceTree
-* Kconfig
-* Sensor Driver Development
-
-### Embedded Applications
-
-* Multi-threaded applications
-* Sensor-based projects
-* Real-time embedded systems
+* UART
+* I²C
+* SPI
+* PWM
+* ADC
+* Sensor Drivers
 
 ---
 
-# Skills Developed
+## Development Platform
 
-* Embedded C
-* Zephyr RTOS
-* Thread Scheduling
-* DeviceTree
-* Kconfig
-* GPIO Programming
-* Interrupt Handling
-* Peripheral Driver Development
-* Embedded Debugging
-* Build Systems (West & CMake)
+| Item         | Description                   |
+| ------------ | ----------------------------- |
+| Board        | STM32 Nucleo-F411RE           |
+| MCU          | STM32F411RET6 (ARM Cortex-M4) |
+| Language     | C                             |
+| Build System | West + CMake                  |
+| RTOS         | Zephyr                        |
+| Toolchain    | Zephyr SDK                    |
 
 ---
 
-# Build
+## Build
 
 ```bash
 west build -b nucleo_f411re
 ```
 
-# Flash
+Flash
 
 ```bash
 west flash
 ```
 
----
+Serial Console
 
-# Documentation
-
-Each example includes:
-
-* Objective
-* Theory
-* Hardware Used
-* Project Structure
-* DeviceTree Configuration
-* Build Instructions
-* Flash Instructions
-* Expected Output
-* APIs Used
-* Learning Outcomes
+```bash
+minicom -D /dev/ttyACM0 -b 115200
+```
 
 ---
 
-# Future Work
+## Design Principles
 
-* Complete Zephyr Kernel API examples
-* Develop custom sensor drivers
-* Explore Bluetooth and networking
-* Study power management
-* Build complete embedded applications
-* Contribute to the Zephyr Project
+* Modular project structure
+* One concept per example
+* Standard Zephyr application layout
+* DeviceTree-based hardware configuration
+* Portable and reusable code
+* Clear project documentation
+* Incremental learning from kernel fundamentals to driver development
 
 ---
 
-# Learning Resources
+## Repository Roadmap
+
+| Area                  |    Status   |
+| --------------------- | :---------: |
+| Getting Started       |      ✓      |
+| Kernel APIs           |      ✓      |
+| Scheduling            |      ✓      |
+| Synchronization       | In Progress |
+| Interrupts            |   Planned   |
+| Device Drivers        |   Planned   |
+| Peripheral Interfaces |   Planned   |
+| Sensor Integration    |   Planned   |
+
+---
+
+## References
 
 * Zephyr Project Documentation
-* Zephyr Project GitHub Repository
-* STM32 Nucleo-F411RE User Manual
-* STM32 Reference Manual
+* Zephyr API Reference
+* Zephyr Samples
+* Zephyr DeviceTree Documentation
+
+---
+
+## Author
+
+**Priya Dharshini S**
+
+Electronics and Communication Engineering
+
+Embedded Systems • Firmware Development • Zephyr RTOS
+
+GitHub: https://github.com/PriyaSelvakumar123
 
 ---
 
 ## License
 
-This repository is intended for learning, experimentation, and educational purposes.
-
----
-
-## About Me
-
-I am an Electronics and Communication Engineering student with a strong interest in Embedded Systems, RTOS, Embedded Linux, and Firmware Development.
-
-This repository documents my continuous learning journey with Zephyr RTOS through practical implementations, experimentation, and progressively more advanced embedded software development.
+This project is licensed under the MIT License.
