@@ -385,7 +385,7 @@ TOOLCHAIN_HAS_PICOLIBC:BOOL=ON
 TOOLCHAIN_ROOT:STRING=/home/priya/zephyrproject/zephyr
 
 //No help, variable specified on the command line.
-WEST_PYTHON:UNINITIALIZED=/home/priya/zephyrproject/.venv/bin/python3
+WEST_PYTHON:UNINITIALIZED=/usr/bin/python3
 
 //Zephyr base
 ZEPHYR_BASE:PATH=/home/priya/zephyrproject/zephyr
@@ -601,7 +601,7 @@ FIND_PACKAGE_MESSAGE_DETAILS_Dtc:INTERNAL=[/usr/bin/dtc][v1.7.2(1.4.6)]
 //Details about finding GnuLd
 FIND_PACKAGE_MESSAGE_DETAILS_GnuLd:INTERNAL=[/home/priya/zephyr-sdk-0.17.2/arm-zephyr-eabi/arm-zephyr-eabi/bin/ld.bfd][v2.38()]
 //Details about finding Python3
-FIND_PACKAGE_MESSAGE_DETAILS_Python3:INTERNAL=[/home/priya/zephyrproject/.venv/bin/python3][found components: Interpreter ][v3.14.4(3.10)]
+FIND_PACKAGE_MESSAGE_DETAILS_Python3:INTERNAL=[/usr/bin/python3][found components: Interpreter ][v3.14.4(3.10)]
 //Zephyr hardware model version
 HWM:INTERNAL=v2
 //Zephyr hardware model
@@ -611,15 +611,15 @@ KERNEL_META_PATH:INTERNAL=/home/priya/zephyrproject/zephyr-rtos-projects/kernel_
 SOC_DIRECTORIES:INTERNAL=/home/priya/zephyrproject/zephyr/soc/st/stm32
 SOC_LINKER_SCRIPT:INTERNAL=/home/priya/zephyrproject/zephyr/include/zephyr/arch/arm/cortex_m/scripts/linker.ld
 //West
-WEST:INTERNAL=/home/priya/zephyrproject/.venv/bin/python3;-m;west
+WEST:INTERNAL=/usr/bin/python3;-m;west
 //Compiler reason failure
 _Python3_Compiler_REASON_FAILURE:INTERNAL=
 //Development reason failure
 _Python3_Development_REASON_FAILURE:INTERNAL=
-_Python3_EXECUTABLE:INTERNAL=/home/priya/zephyrproject/.venv/bin/python3
+_Python3_EXECUTABLE:INTERNAL=/usr/bin/python3
 //Python3 Properties
-_Python3_INTERPRETER_PROPERTIES:INTERNAL=Python;3;14;4;64;<none>;cpython-314-x86_64-linux-gnu.so;abi3;/usr/lib/python3.14;/home/priya/zephyrproject/.venv/lib/python3.14;/home/priya/zephyrproject/.venv/lib/python3.14/site-packages;/home/priya/zephyrproject/.venv/lib/python3.14/site-packages
-_Python3_INTERPRETER_SIGNATURE:INTERNAL=f335fd8a1dda4659f71a6d533d767cb7
+_Python3_INTERPRETER_PROPERTIES:INTERNAL=Python;3;14;4;64;<none>;cpython-314-x86_64-linux-gnu.so;abi3;/usr/lib/python3.14;/usr/lib/python3.14;/usr/local/lib/python3.14/dist-packages;/usr/local/lib/python3.14/dist-packages
+_Python3_INTERPRETER_SIGNATURE:INTERNAL=4c8bfa8951e99fa32e4000a94f8c04a2
 //NumPy reason failure
 _Python3_NumPy_REASON_FAILURE:INTERNAL=
 
