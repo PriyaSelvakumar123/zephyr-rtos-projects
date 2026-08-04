@@ -32,7 +32,6 @@ The objective of this repository is to build a strong foundation in Zephyr RTOS 
 # Repository Structure
 
 ```text
-```text
 zephyr-rtos-projects/
 │
 ├── getting_started/
