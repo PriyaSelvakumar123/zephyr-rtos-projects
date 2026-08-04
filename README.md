@@ -114,50 +114,31 @@ Presents how the Zephyr RTOS Scheduler acts depending on whether the active thre
 
 ## Zephyr Scheduling Mechanics
 
-The following diagrams illustrate the scheduling behavior modeled in the `02_thread_scheduling` directory.
+The following diagrams illustrate the scheduling behavior modeled in the `02_thread_scheduling` directory, matching the official Zephyr RTOS layout:
 
-### Cooperative Scheduling Flow
-```mermaid
-sequenceDiagram
-    participant LT as Low-Priority Thread (Cooperative, -1)
-    participant HT as High-Priority Thread (Cooperative, -2)
-    LT->>LT: Start Execution / Print Counts 1 to 10
-    Note over LT: Keeps CPU even though High-Priority is READY!
-    LT->>LT: Call k_yield()
-    Note over LT: Voluntarily yields CPU control
-    LT-->>HT: Context Switch
-    activate HT
-    HT->>HT: Print "High Priority Thread Running"
-    HT->>HT: k_sleep(1s)
-    deactivate HT
-    Note over HT: Blocked (Sleeping)
-    HT-->>LT: Context Switch
-    activate LT
-    LT->>LT: Resume execution after yield
-    deactivate LT
-```
+### Cooperative Time Slicing
+![Cooperative Time Slicing](https://docs.zephyrproject.org/latest/_images/cooperative.svg)
 
-### Preemptive Scheduling Flow
-```mermaid
-sequenceDiagram
-    participant LT as Low-Priority Thread (Preemptive, 5)
-    participant HT as High-Priority Thread (Preemptive, 2)
-    activate LT
-    LT->>LT: Busy-Wait (k_busy_wait 50ms)
-    Note over HT: 1-second sleep timer expires: HT changes to READY
-    Note over LT,HT: HT is READY and priority (2) > priority (5)
-    LT-->>HT: Immediate Preemption (Context Switch)
-    deactivate LT
-    activate HT
-    HT->>HT: Run Loop / Print "HIGH" 1 to 5
-    HT->>HT: k_msleep(1000)
-    deactivate HT
-    Note over HT: Blocked (Sleeping)
-    HT-->>LT: Context Switch
-    activate LT
-    LT->>LT: Resume Busy-Wait loop / Print "LOW"
-    deactivate LT
-```
+### Preemptive Time Slicing
+![Preemptive Time Slicing](https://docs.zephyrproject.org/latest/_images/preemptive.svg)
+
+---
+
+## Zephyr Data Passing Objects
+
+The following table summarizes the high-level features of kernel objects that can be used to pass data between threads and ISRs, referenced directly from the [Zephyr Kernel Services Documentation](https://docs.zephyrproject.org/latest/kernel/services/index.html):
+
+| Object | Bidirectional? | Data Structure | Data Item Size | Data Alignment | ISRs Receive? | ISRs Send? | Overrun Handling |
+| :--- | :---: | :--- | :--- | :--- | :---: | :---: | :--- |
+| **FIFO** | No | Queue | Arbitrary | 4 B | Yes* | Yes | N/A |
+| **LIFO** | No | Queue | Arbitrary | 4 B | Yes* | Yes | N/A |
+| **Stack** | No | Array | Word | Word | Yes* | Yes | Undefined behavior |
+| **Message Queue** | No | Ring Buffer | Arbitrary | Power of two | Yes* | Yes | Pend thread or return `-errno` |
+| **Mailbox** | Yes | Queue | Arbitrary | Arbitrary | No | No | N/A |
+| **Pipe** | No | Ring Buffer | Arbitrary | Arbitrary | Yes* | Yes* | Pend thread or return `-errno` |
+
+*\*Only when passing `K_NO_WAIT` as the timeout argument.*
+
 
 ---
 
